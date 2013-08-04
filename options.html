@@ -1,0 +1,102 @@
+<html>
+    <head>
+        <title>C2D URL Options</title>
+        <script type="text/javascript" src="options.js"></script>
+    </head>
+    <body>
+    <style>
+      body {
+        min-width: 250px;
+        overflow-x: hidden;
+        font-family: sans-serif;
+        font-size: 14px;
+      }
+
+      div#status {
+        padding-left: 5px;
+      }
+
+      td {
+        font-size: 14px;
+      }
+  
+      td.heading {
+        font-size: 16px;
+        font-weight: bold;
+        border-bottom: 1px solid black;
+      }
+
+      td.label {
+          
+      }
+
+      input[type=text] {
+        margin: 5px;
+        padding: 2px;
+        border: 1px solid gray;
+        vertical-align: middle;
+        height: 24px;
+      }
+     
+      input[type=text].tiny {
+        width: 50px;
+      }
+
+      input[type=text].small {
+        width: 100px;
+      }
+
+      input[type=text].medium {
+        width: 250px;
+      }
+
+      input[type=text].large {
+        width: 600px;
+      }
+
+
+      input[type=image] {
+        margin: 0px;
+        padding: 5px;
+        border: 1px solid gray;
+        background-color: #eee;
+        vertical-align: middle;
+        width: 18px;
+        height: 18px;
+      }
+
+      span.example {
+        margin-left: 5px;
+        font-size: 12px;
+        color: #999;
+      }
+    </style>
+        <h1>C2D URL Options</h1>
+        <div id="status"></div>
+        <table>
+            <tr><td colspan="2" class="heading">Connection</td></tr>
+	    <tr><td nowrap class="label">IP address or hostname</td><td><input type="text" id="phoneAddress" class="medium" /></td></tr>
+	    <tr><td nowrap class="label">Username</td><td><input type="text" id="phoneUsername" class="small" /></td></tr>
+	    <tr><td nowrap class="label">Password</td><td><input type="text" id="phonePassword" class="small" /></td></tr>
+            <tr><td colspan="2" class="heading">URLs</td></tr>
+            <tr><td colspan="2">
+              Following variables can be used inside URLs:
+                <table>
+                    <tr><td><em>$number</em></td><td>Number to dial.</td></tr>
+                    <tr><td><em>$phoneAddress</em></td><td>IP address or hostname</td></tr>
+                    <tr><td><em>$phoneUsername</em></td><td>Optional: Username for authentication.</td></tr>
+                    <tr><td><em>$phonePassword</em></td><td>Optional: Password for authentication.</td></tr>
+                </table>
+            </td></tr>
+	    <tr><td nowrap class="label">Dial</td><td nowrap><input type="text" id="urlDial" class="large" /><br/><span class="example">Example: http://$phoneUsername:$phonePassword@$phoneAddress/command.htm?number=$number (SNOM 3x0)</span></td></tr>
+	    <tr><td nowrap class="label">Hangup</td><td><input type="text" id="urlHangup" class="large" /><br/><span class="example">Example: http://$phoneUsername:$phonePassword@$phoneAddress/command.htm?RELEASE_ALL_CALLS (SNOM 3x0)</span></td></tr>
+	    <tr><td nowrap class="label">Phone Display</td><td><input type="text" id="urlDisplay" class="large" /><br/><span class="example">Example: http://$phoneUsername:$phonePassword@$phoneAddress/screen.bmp (SNOM 3x0)</span></td></tr>
+	    <tr><td>Refresh Interval (ms)</td><td><input type="text" id="displayRefresh" class="tiny" /></td></tr>
+            <tr><td colspan="2" class="heading">Prefixes</td></tr>
+	    <tr><td nowrap class="label">Long distance</td><td><input type="text" id="prefixLongDistance" class="tiny" /></td></tr>
+	    <tr><td nowrap class="label">International</td><td><input type="text" id="prefixInternational" class="tiny" /></td></tr>
+            <tr><td>&nbsp;</td><td><button id="save">Save</button></td></tr>
+        </table>
+    </body>
+    <script src="options.js"></script>
+</html>
