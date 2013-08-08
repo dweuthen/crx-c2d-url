@@ -78,17 +78,26 @@ function setStatus(message, timeout) {
 function doRefreshDisplay() {
     var urlDisplay = buildUrl(localStorage["urlDisplay"]);
     var displayRefresh = localStorage["displayRefresh"];
-    var status = document.getElementById("display");
+    var status = document.getElementById("status");
+    var display = document.getElementById("display");
  
     if (urlDisplay) {
-       status.innerHTML = '<img name="display" src="' + urlDisplay + '" />';
+       display.innerHTML = '<img name="phonedisplay" src="' + urlDisplay + '" />';
+       var phoneDisplay = new Image();
+       phoneDisplay.src = urlDisplay;
+       phoneDisplay.onload = function() {
+                                 document.getElementById("status").style.width = phoneDisplay.width + 10;
+                                 document.getElementById("number").style.width = phoneDisplay.width;
+                                 window.resizeTo(phoneDisplay.width + 40, phoneDisplay.height + 130); 
+                             }
+       
        setInterval(function () { 
-            phoneDisplay = new Image(100,25); 
+            phoneDisplay = new Image(); 
             phoneDisplay.src = urlDisplay; 
-            document.display.src = phoneDisplay.src;
+            document.phonedisplay.src = phoneDisplay.src;
         }, displayRefresh);
     } else {
-        status.innerHTML = 'Not available.';
+        display.innerHTML = 'Not available.';
     }
 }
 
@@ -105,7 +114,7 @@ document.querySelector('#number').addEventListener('keypress', function(event) {
 document.querySelector('#hangup').addEventListener('click', doHangup);
 
 try {
-    var number = getQuerystring('number');
+    var number = unescape(getQuerystring('number'));
     if (number) {
         document.getElementById("number").value = number;   
     }
