@@ -10,8 +10,17 @@ function getQuerystring(key, default_) {
 }
 
 function normalizePhoneNumber(number) {
+    // Strip "(0)" from number. We pretend pretend this only occurs when 
+    // number has also an international prefix.
+    number = number.replace(/\(0\)/g,"");
+
+    // Strip some special characters that do not have a real meaning.
     number = number.replace(/(\s|\,|\.|\(|\)|\-)/g,"");
+
+    // Replace the plus sign with the configured international prefix
     number = number.replace("+",localStorage["prefixInternational"]);
+  
+    // Prepend long distance prefix
     number = localStorage["prefixLongDistance"] + number;
     return number;
 }
@@ -75,29 +84,31 @@ function setStatus(message, timeout) {
     }, timeout);
 }
 
+function resizeWindow(width, height) {
+    document.getElementById("status").style.width = width + 10;
+    document.getElementById("number").style.width = width;
+    window.resizeTo(width + 40, height + 130); 
+}
+
 function doRefreshDisplay() {
     var urlDisplay = buildUrl(localStorage["urlDisplay"]);
     var displayRefresh = localStorage["displayRefresh"];
-    var status = document.getElementById("status");
-    var display = document.getElementById("display");
  
     if (urlDisplay) {
-       display.innerHTML = '<img name="phonedisplay" src="' + urlDisplay + '" />';
+       document.getElementById("display").innerHTML = '<img name="phonedisplay" src="' + urlDisplay + '" />';
        var phoneDisplay = new Image();
        phoneDisplay.src = urlDisplay;
-       phoneDisplay.onload = function() {
-                                 document.getElementById("status").style.width = phoneDisplay.width + 10;
-                                 document.getElementById("number").style.width = phoneDisplay.width;
-                                 window.resizeTo(phoneDisplay.width + 40, phoneDisplay.height + 130); 
-                             }
-       
+       document.phonedisplay.src = phoneDisplay.src;
+       phoneDisplay.onload = resizeWindow(document.phonedisplay.width, document.phonedisplay.height);
+      
        setInterval(function () { 
-            phoneDisplay = new Image(); 
-            phoneDisplay.src = urlDisplay; 
-            document.phonedisplay.src = phoneDisplay.src;
-        }, displayRefresh);
+                       phoneDisplay = new Image(); 
+                       phoneDisplay.src = urlDisplay; 
+                       document.phonedisplay.src = phoneDisplay.src;
+                       phoneDisplay.onload = resizeWindow(document.phonedisplay.width, document.phonedisplay.height);
+                   }, displayRefresh);
     } else {
-        display.innerHTML = 'Not available.';
+         document.getElementById("display").innerHTML = 'Not available.';
     }
 }
 
@@ -116,7 +127,7 @@ document.querySelector('#hangup').addEventListener('click', doHangup);
 try {
     var number = unescape(getQuerystring('number'));
     if (number) {
-        document.getElementById("number").value = number;   
+        document.getElementById("number").value = normalizePhoneNumber(number);   
     }
 } catch(err) {
     alert(err)
