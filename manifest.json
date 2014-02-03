@@ -13,7 +13,7 @@
   },
 
   "background": {
-    "scripts": ["contextmenu.js"]
+    "scripts": ["contextmenu.js" ]
   }, 
 
   "icons": {
@@ -25,6 +25,11 @@
   "permissions": [
     "<all_urls>",
     "tabs", 
-    "contextMenus"
+    "contextMenus",
+    "webRequest",
+    "webRequestBlocking",
+    "background",
+    "http://*/*",
+    "https://*/*"
   ]
 }

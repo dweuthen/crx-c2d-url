@@ -40,6 +40,20 @@ function buildUrl(url, number) {
     return url;
 }
 
+function setStatus(message, timeout) {
+    var status = document.getElementById("status");
+    status.innerHTML = message;
+    setTimeout(function() {
+        status.innerHTML = "";
+    }, timeout);
+}
+
+function resizeWindow(width, height) {
+    document.getElementById("status").style.width = width + 10;
+    document.getElementById("number").style.width = width;
+    window.resizeTo(width + 40, height + 130); 
+}
+
 function doHangup() {
     var req = new XMLHttpRequest();
     var urlHangup = buildUrl(localStorage["urlHangup"]);
@@ -76,54 +90,60 @@ function doCall() {
     req.open("GET", urlDial, true);
     req.send(null);
 }
-function setStatus(message, timeout) {
-    var status = document.getElementById("status");
-    status.innerHTML = message;
-    setTimeout(function() {
-        status.innerHTML = "";
-    }, timeout);
-}
-
-function resizeWindow(width, height) {
-    document.getElementById("status").style.width = width + 10;
-    document.getElementById("number").style.width = width;
-    window.resizeTo(width + 40, height + 130); 
-}
 
 function doRefreshDisplay() {
     var urlDisplay = buildUrl(localStorage["urlDisplay"]);
     var displayRefresh = localStorage["displayRefresh"];
- 
+    
     if (urlDisplay) {
-       document.getElementById("display").innerHTML = '<img name="phonedisplay" src="' + urlDisplay + '" />';
-       var phoneDisplay = new Image();
-       phoneDisplay.src = urlDisplay;
-       document.phonedisplay.src = phoneDisplay.src;
-       phoneDisplay.onload = resizeWindow(document.phonedisplay.width, document.phonedisplay.height);
-      
-       setInterval(function () { 
-                       phoneDisplay = new Image(); 
-                       phoneDisplay.src = urlDisplay; 
-                       document.phonedisplay.src = phoneDisplay.src;
-                       phoneDisplay.onload = resizeWindow(document.phonedisplay.width, document.phonedisplay.height);
-                   }, displayRefresh);
+        var xhr = new XMLHttpRequest()
+
+        // Initial request of display
+        xhr.open('GET', urlDisplay, true);
+        xhr.responseType = 'blob';
+        xhr.onload = function(e) {
+           if (this.status == 200) {
+               var img = document.getElementById("phonedisplay")
+               img.onload = function(e) {
+                   resizeWindow(img.width, img.height);
+                   window.URL.revokeObjectURL(img.src); // Clean up after yourself.
+               };
+               img.src = window.URL.createObjectURL(xhr.response);
+           } else {
+               setStatus("An error occured while retrieving display :<br/>" + req.responseText, 5000);
+           }
+        };
+        xhr.send();
+
+        // Refresh display in given interval 
+        setInterval(function () { 
+            xhr.open("GET",urlDisplay, true);
+            xhr.send();
+        }, displayRefresh);
     } else {
-         document.getElementById("display").innerHTML = 'Not available.';
+        document.getElementById("display").innerHTML = 'No display URL configured.';
     }
 }
 
 
-doRefreshDisplay();
+// Send credential if authentication is required 
+chrome.webRequest.onAuthRequired.addListener(
+    function() { return {authCredentials: {username: localStorage["phoneUsername"], password: localStorage["phonePassword"]}} }, 
+    {urls: ["<all_urls>"]}, 
+    ['blocking']
+);
+
+// Bind event listener for hangup and dial button and enter key
+document.querySelector('#hangup').addEventListener('click', doHangup);
 document.querySelector('#dial').addEventListener('click', doCall);
 document.querySelector('#number').addEventListener('keypress', function(event) {
-    if (event.keyCode === 13)
-    {
+    if (event.keyCode === 13) {
         doCall();
         event.preventDefault();
     }
-}, false );
-document.querySelector('#hangup').addEventListener('click', doHangup);
+}, false);
 
+// If there is a query string parameter "number" try to normalize that number
 try {
     var number = unescape(getQuerystring('number'));
     if (number) {
@@ -133,3 +153,5 @@ try {
     alert(err)
 }
 
+// Show display
+doRefreshDisplay();
